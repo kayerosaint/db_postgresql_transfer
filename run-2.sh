@@ -58,6 +58,6 @@ get_fail=$(cat /home/sqldata/scripts/transfer.md | grep "not_.*")
 fail=$(if grep -q "not_.*" /home/sqldata/scripts/transfer.md; then echo "LIST: $get_fail"; fi)
 dst_srv=$(hostname)
 curl --data-urlencode "chat_id=$chat_id" \
-     --data-urlencode "text=TRANSFER from $from_svr to $dst_srv COMPLETE with status: SUCCESS $transfer_count . ERRORS $not_transfer_count . DATE $(date "+%Y-%m-%d %H:%M:%S") . $fail" \
+     --data-urlencode "text=TRANSFER from $from_srv to $dst_srv COMPLETE with status: SUCCESS $transfer_count . ERRORS $not_transfer_count . DATE $(date "+%Y-%m-%d %H:%M:%S") . $fail" \
      "https://api.telegram.org/bot$bot_api/sendMessage" \
      &>/dev/null
