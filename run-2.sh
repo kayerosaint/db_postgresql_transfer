@@ -23,12 +23,24 @@ function show_progress {
 }
 
 echo "" > /home/sqldata/scripts/transfer.md
+
+# global vars
+if [ -f .env ]; then
+	from_srv=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^FROM_SRV/{v=t(\$2)};END{printf "%s\n",v}' ./.env)
+	chat_id=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^CHAT_ID/{v=t($2)};END{printf "%s\n",v}' ./.env)
+	bot_api=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^API/{v=t($2)};END{printf "%s\n",v}' ./.env)	
+else
+    echo "file .env not found."
+    exit 1
+
+# run transfer
 num_args=$#
 transfer_count=0
 not_transfer_count=0
+
 for i in $(seq 1 $num_args); do
   db_name=$(echo "$@" | cut -d' ' -f$i)
-  pg_dump --dbname $db_name --host=sql0 --create | psql >&/dev/null
+  pg_dump --dbname $db_name --host=$from_srv --create | psql >&/dev/null
   psql -c "\l" | grep $db_name >&/dev/null > /home/sqldata/scripts/tmp.md
   if ! grep -q "$db_name" /home/sqldata/scripts/tmp.md; then
     echo -e "\n$db_name not_transfered $(date +%d"."%m"."%Y)" >> /home/sqldata/scripts/transfer.md
@@ -44,9 +56,6 @@ done
 get_fail=$(cat /home/sqldata/scripts/transfer.md | grep "not_.*")
 fail=$(if grep -q "not_.*" /home/sqldata/scripts/transfer.md; then echo "LIST: $get_fail"; fi)
 dst_srv=$(hostname)
-from_srv=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^FROM_SRV/{v=t($2)};END{printf "%s\n",v}' ./.env)
-chat_id=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^CHAT_ID/{v=t($2)};END{printf "%s\n",v}' ./.env)
-bot_api=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^API/{v=t($2)};END{printf "%s\n",v}' ./.env)
 curl --data-urlencode "chat_id=$chat_id" \
      --data-urlencode "text=TRANSFER from $from_svr to $dst_srv COMPLETE with status: SUCCESS $transfer_count . ERRORS $not_transfer_count . DATE $(date "+%Y-%m-%d %H:%M:%S") . $fail" \
      "https://api.telegram.org/bot$bot_api/sendMessage" \
