@@ -32,6 +32,7 @@ if [ -f .env ]; then
 else
     echo "file .env not found."
     exit 1
+fi
 
 # run transfer
 num_args=$#
