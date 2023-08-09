@@ -1,0 +1,6 @@
+*.md
+test.sh
+run.sh
+convert.sh
+.env
+
