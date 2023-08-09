@@ -26,7 +26,7 @@ echo "" > /home/sqldata/scripts/transfer.md
 
 # global vars
 if [ -f .env ]; then
-	from_srv=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^FROM_SRV/{v=t(\$2)};END{printf "%s\n",v}' ./.env)
+	from_srv=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^FROM_SRV/{v=t($2)};END{printf "%s\n",v}' ./.env)
 	chat_id=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^CHAT_ID/{v=t($2)};END{printf "%s\n",v}' ./.env)
 	bot_api=$(awk -F '=' 'function t(s){gsub(/[[:space:]]/,"",s);return s};/^API/{v=t($2)};END{printf "%s\n",v}' ./.env)	
 else
