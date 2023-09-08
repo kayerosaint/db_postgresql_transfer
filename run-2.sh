@@ -51,6 +51,8 @@ else
     exit 1
 fi
 
+show_wait
+
 # run transfer
 num_args=$#
 transfer_count=0
@@ -58,9 +60,6 @@ not_transfer_count=0
 
 for i in $(seq 1 $num_args); do
   db_name=$(echo "$@" | cut -d' ' -f$i)
-
-  show_wait
-
   pg_dump --dbname $db_name --host=$from_srv --create | psql >&/dev/null
   psql -c "\l" | grep $db_name >&/dev/null > /home/sqldata/scripts/tmp.md
   if ! grep -q "$db_name" /home/sqldata/scripts/tmp.md; then
